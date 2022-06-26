@@ -17,76 +17,71 @@ def calculate_hypotenuse(side_1, side_2):
 
     Returns
     -------
-    int : Length of the hypotenuse.
+    int
+        Length of the hypotenuse.
     """
     return math.sqrt(side_1 ** 2 + side_2 ** 2)
 
 
 def approximate_hypotenuse(side_1, side_2):
+    """
+    Calculates the approximate length of the hypotenuse.
+
+    Sums the absolute values of the two sides of the triangle to approximate the length of the hypotenuse.
+
+    Parameters
+    ----------
+    side_1: float
+        Length of one side of the 90° triangle
+    side_2: float
+        Length of another side of the 90° triangle
+
+    Returns
+    -------
+    float
+        Approximate length of the hypotenuse.
+    """
     return abs(side_1) + abs(side_2)
 
 
-def round_angle(angle):
+def calculate_gradient_angle(x_response, y_response):
     """
-    Rounds an angle.
+    Calculates the gradient orientation (of a pixel) based on their x and y response to the sobel kernel.
 
-    This function rounds an angle to the closest of four angles:
-    The vertical-, horizontal- or one of the two diagonal directions.
+    Parameters
+    ----------
+    x_response: float
+        Response to the vertical sobel kernel.
+    y_response: float
+        Response of the horizontal sobel kernel.
+
+    Returns
+    -------
+    float
+        The orientation of the pixel in degrees.
+    """
+    if x_response == 0:
+        return 1
+    return math.atan(y_response / x_response)
+
+
+def new_xy_circumference_circle(angle, radius):
+    """
+    Calculates the x and y coordinates on the circumference of a circle.
+
+    The coordinates are calculated with the angle and radius and are indexed with respect to their shift from the circle
+    center.
 
     Parameters
     ----------
     angle: float
-        The angle.
+        Angle from the x-axis in degrees.
+    radius: int
+        Radius of the circle.
 
     Returns
     -------
-    int
-        The rounded angle.
+    tuple : (int, int)
+        The new x, y coordinates.
     """
-    if angle <= -0.225:
-        return round_angle(angle + 3.6)
-    if angle <= 0.225:
-        return 0
-    if angle <= 0.675:
-        return 45
-    if angle <= 1.125:
-        return 90
-    if angle <= 1.575:
-        return 135
-    if angle <= 2.025:
-        return 180
-    if angle <= 2.475:
-        return 225
-    if angle <= 2.925:
-        return 270
-    if angle <= 3.375:
-        return 315
-    return round_angle(angle - 3.6)
-
-
-def perpendicular_to_rounded_angle(angle):
-    """
-    Gets the angle curring perpendicular to the current angle.
-
-
-    Parameters
-    -----------
-    angle : float
-         The angle perpendicular to a random side of the current angle.
-    :return:
-    """
-    angle += 90
-    if angle > 360:
-        angle -= 360
-    return angle
-
-
-def calculate_angle_sobel(x_response, y_response):
-    if y_response == 0:
-        return 90
-    return math.atan(x_response / y_response)
-
-
-def new_xy_circumferance_circle(angle, radius):
-    """"""
-    return radius * math.cos(angle), radius * math.sin(angle)
+    return math.cos(radius * angle), math.sin(radius * angle)
