@@ -1,39 +1,50 @@
 import numpy as np
 
 
-def local_maximum_vector(intersection_edge: np.ndarray) -> int:
+def local_maximum_1d(local_vector: np.ndarray) -> int:
     """
-    Checks if the center value in an array is the local maximum.
+    Calculates the index of the local maximum.
 
     Parameters
     ----------
-    intersection_edge : numpy.ndarray
-        Row of pixels of the edge, running perpendicular to the edge direction.
-    radius : numpy.ndarray
-        Radius of ``intersection_edge``
+    local_vector : numpy.ndarray
+        Row of values in a vector.
+
     Returns
     -------
-    true
-        The center pixel is a local maximum.
-    false
-        The center pixel is not a local maximum.
+    int
+        Index of the local maximum.
     """
-    maximum = intersection_edge[0]
+    maximum = local_vector[0]
     index = 0
-    for pixel_index, edge_pixel in enumerate(intersection_edge[1:]):
+    for pixel_index, edge_pixel in enumerate(local_vector[1:]):
         if edge_pixel > maximum:
             index = pixel_index + 1
             maximum = edge_pixel
     return index
 
 
-def local_maximum_matrix(matrix):
-    """"""
+def local_maximum_2d_cache(local_matrix):
+    """
+    Calculates the index of the local maximum in a 2d matrix.
+    The matrix has to contain a datatype containing a cache attribute, like Grey Pixel.
+    The local maximum pixel when comparing their cache attribute is calculated and so is its index.
+
+    Parameters
+    ----------
+    local_matrix: np.ndarray
+        The local matrix we are searching for the maximum value in terms of cache.
+
+    Returns
+    -------
+    tuple: (int, int)
+        Index of the local maximum (y, x).
+    """
     maximum_index = (0, 0)
-    maximum = matrix[0, 0].cache
-    for row_index, row in enumerate(matrix):
-        for column_index, value in enumerate(row):
-            current_value = matrix[row_index, column_index].cache
+    maximum = local_matrix[0, 0].cache
+    for row_index, row in enumerate(local_matrix):
+        for column_index, current_value in enumerate(row):
+            current_value = current_value.cache
             if current_value is None:
                 continue
             if current_value > maximum:
