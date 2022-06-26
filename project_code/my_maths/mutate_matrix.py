@@ -1,22 +1,6 @@
-import numpy as np
 from project_code.my_maths import select_from_matrix as matrix_select
 
-
-def secure_matrix(an_array: np.ndarray, column_vector=False) -> np.ndarray:
-    """
-    Creates a 2d array out of a 1d array.
-
-    Takes an array (ndarray) as input.
-    If the array is a vector, resizes it into a single column matrix and return this.
-    If the array is a matrix, returns the matrix array unchanged.
-    """
-    if len(an_array.shape) == 1:
-        if column_vector:  # we want a matrix with 1 column vector.
-            return np.resize(an_array, (an_array.shape[0], 1))
-        # not column_vector (we want a matrix with 1 row vector).
-        return np.resize(an_array, (1, an_array.shape[0]))
-
-    return an_array
+import numpy as np
 
 
 def transpose(matrix: np.ndarray) -> np.ndarray:
