@@ -49,7 +49,7 @@ def get_sub_matrix(mother_matrix, x_start, y_start, size=5):
     return sub_matrix_view
 
 
-def get_perpendicular_vector(matrix_with_edge, angle, kernel_radius):
+def get_vector_on_angle(matrix_with_edge, angle, kernel_radius):
     """
     Get the vector perpendicular to the edge.
 
@@ -66,26 +66,16 @@ def get_perpendicular_vector(matrix_with_edge, angle, kernel_radius):
 
     Returns
     -------
-
+    numpy.ndarray
+        array with the vector on the angle.
     """
-    if angle == 0 or angle == 180:
-        return extract_row(matrix_with_edge, kernel_radius)
-    if angle == 45 or angle == 225:
-        return extract_diagonal(matrix_with_edge, rl=True)
-    if angle == 90 or angle == 270:
+    if angle <= -1.5:
         return extract_column(matrix_with_edge, kernel_radius)
-    if angle == 135 or angle == 315:
+    if angle <= -0.5:
         return extract_diagonal(matrix_with_edge)
-
-
-def add_adjacent_column_index_right(row_index, column_index):
-    return row_index, column_index + 1
-
-
-def add_adjacent_column_index_right_below(row_index, column_index):
-    return row_index + 1, column_index + 1
-
-
-def add_adjacent_row_indexes_below(row_index, column_index):
-    for i in range(column_index - 1, column_index + 1):
-        return
+    if angle <= 0.5:
+        return extract_row(matrix_with_edge, kernel_radius)
+    if angle <= 1.5:
+        return extract_diagonal(matrix_with_edge, rl=True)
+    if angle <= 2:
+        return extract_column(matrix_with_edge, kernel_radius)
