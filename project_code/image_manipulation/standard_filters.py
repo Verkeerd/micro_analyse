@@ -12,7 +12,8 @@ def apply_kernel(sub_image, kernel):
     Applies a kernel to a pixel.
 
     This function applies a kernel to a pixel. It calculates the hadamard product of the kernel and pixel with its
-    surroundings. After this it takes the total sum of the hadamard product.
+    surroundings.
+    It calculates this by squishing both matrices into 1d and taking the inner vector product of these 1d vectors,
 
     Parameters
     ----------
@@ -33,6 +34,21 @@ def apply_kernel(sub_image, kernel):
 
 
 def gauss_blur(value_table, kernel_size):
+    """
+    Applies a Gaussian blur to a pixel table.
+
+    Parameters
+    ----------
+    value_table: PixelTable
+        Pixel Table containing pixels to blur.
+    kernel_size: int
+        Length and width of the gaussian kernel.
+
+    Returns
+    -------
+    None
+        Pixels inside the Pixel table have been blurred.
+    """
     image_pixels = value_table.pixels
 
     gaussian_kernel = blur.gaussian_kernel(kernel_size)
@@ -47,6 +63,6 @@ def gauss_blur(value_table, kernel_size):
                                                           size=kernel_size)
 
             new_pixel_value = apply_kernel(pixel_and_surrounding, gaussian_kernel)
-            image_pixels[row_index][column_index].cache = int(new_pixel_value)
+            image_pixels[row_index][column_index].cache = new_pixel_value
 
     value_table.set_new_pixel_values()
