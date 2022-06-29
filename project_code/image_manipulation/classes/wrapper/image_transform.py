@@ -46,7 +46,7 @@ class TransformImage(object):
         """
         self.working_image = img
         image_pixel_table = tables.PixelTable(self.working_image.width, self.working_image.height)
-        image_pixel_table.fill_with_grey_pixels(self.working_image)
+        image_pixel_table.fill_with_image(self.working_image)
         self.pixel_values = image_pixel_table
 
     def method1(self):
@@ -69,7 +69,6 @@ class TransformImage(object):
         None
             Pixel table image has been blurred.
         """
-        print('Gauss.')
         apply_filter.gauss_blur(self.pixel_values, kernel_size)
 
     def apply_sobel_edge_detection(self):
@@ -83,52 +82,57 @@ class TransformImage(object):
         None
             Pixel table contains the result of the sobel edge detector.
         """
-        print('Sobel.')
         sobel.run_sobel_edge_detection(self.pixel_values)
 
-    def apply_canny_edge_detection(self, kernel_size=3):
+    def apply_canny_edge_detection(self, kernel_size=3, noise=2):
         """
         Searches for the strongest edges using Canny Edge Detection.
-
-        The image stored inside the Pixel Table is scanned by the Canny Edge Detector.
-        Only the steps unique to canny, non local-maximum suppression and hysteresis thresholding, are carried out.
 
         Parameters
         ----------
         kernel_size: int
             Diameter of the non-maximum edge intersection; (Double the) length between adjacent pixels with creating
             edges with hysteresis thresholding.
+        noise: int
+            Approximate amount of noise in the image.
 
         Returns
         -------
         None
             Pixel table contains the result of the sobel edge detector.
         """
-        canny.canny_detector(self.pixel_values, kernel_size)
+        canny.canny_detector(self.pixel_values, kernel_size, noise)
 
-    def apply_hough_circle_transform(self, radius):
+    def apply_hough_circle_transform(self, size):
         """
         Searches for a circles using Hough Circle Transform.
 
         Parameters
         ----------
-        radius: int
-            radius of the pixels we are looking for.
-        """
-        return hough.find_circles_hough(self.pixel_values, radius)
+        size: int
+            approximate range of radii in the pixels.
 
-    def apply_canny(self, kernel_size=3):
+        Returns
+        -------
+        dict: {int: [(int, int)]}
+            A dictionary with radii, containing a list with their found circle centers as (x, y).
         """
+        return hough.find_circles_unset_size(self.pixel_values, size)
 
+    def apply_canny(self, kernel_size=3, noise=2):
+        """
+        Searches for edges using Canny Edge Detection.
 
         Parameters
         ----------
         kernel_size: int
-            siz
+            Amount of steps between adjacent pixels.
+        noise: int
+            Approximate amount of noise in the image.
         """
         self.apply_gaussian_blur(kernel_size)
         self.apply_sobel_edge_detection()
-        self.apply_canny_edge_detection(kernel_size)
+        self.apply_canny_edge_detection(kernel_size, noise)
 
     def apply_canny_show_images(self, kernel_size=3):
         """"""
@@ -144,31 +148,18 @@ class TransformImage(object):
         canny.hysteresis_thresholding(self.pixel_values, kernel_size)
         self.plot_pixel_table(cut_edge=2)
 
-    def find_circles(self, size='mid'):
+    def find_circles(self, size=1):
         """
-        Searches the image inside the pixel table for circles.
+        Searches for a circles using Hough Circle Transform.
 
-        Searches for a specified range.
+        Searches for a circles inside a specified range.
+
+        Parameters
+        ----------
+        size: int
+            The range of radii.
         """
-        if size == 'mid':
-            radii = range(20, 51)
-        elif size == 'small':
-            radii = range(10, 31)
-        elif size == 'big':
-            radii = range(50, 101)
-        elif size == 'very_big':
-            radii = range(100, 201)
-        else:
-            radii = range(2, 103)
-
-        all_circles = list()
-        for radius in radii:
-            new_circles = self.apply_hough_circle_transform(radius)
-            all_circles += new_circles
-
-        self.draw_over_image([(x, y) for r, x, y in all_circles], (255, 0, 0))
-
-        return all_circles
+        return hough.find_circles_unset_size(self.pixel_values, size)
 
     def plot_pixel_table(self, cut_edge=2):
         """
@@ -232,12 +223,15 @@ class TransformImage(object):
                 end_y = self.working_image.width
             for draw_x in range(start_x, end_x):
                 for draw_y in range(start_y, end_y):
-                    self.working_image.putpixel((draw_x, draw_y), colour)
+                    try:
+                        self.working_image.putpixel((draw_x, draw_y), colour)
+                    except IndexError:
+                        continue
 
         if show:
             self.working_image.show()
 
-    def draw_circle(self, radius_and_indexes, colour, width=1):
+    def draw_circles(self, radius_and_indexes, colour, width=1):
         """
         Draws a circle on the image.
 
@@ -258,8 +252,13 @@ class TransformImage(object):
         None
             Circles are drawn on the image.
         """
-        for radius, x_index, y_index in radius_and_indexes:
-            drawn_circle = shapes.Circle(radius, x_index, y_index)
-            circle_indexes = drawn_circle.draw()
-            self.draw_over_image(circle_indexes, colour, width, False)
+        for radius in radius_and_indexes:
+            base_circle = shapes.Circle(radius, 0, 0)
+            base_circle_indexes = base_circle.circumference_indexes()
+
+            for x_index, y_index in radius_and_indexes[radius]:
+                self.draw_over_image([(x_index, y_index)], colour, width, False)
+                current_indexes = [(base_x + x_index, base_y + y_index) for base_x, base_y in base_circle_indexes]
+                self.draw_over_image(current_indexes, colour, width, False)
+
         self.working_image.show()
