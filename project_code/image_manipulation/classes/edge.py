@@ -1,3 +1,6 @@
+from project_code.image_manipulation.classes import pixel as pix
+
+
 class ContinuousEdge:
     """
     An object representing a continuous edge.
@@ -18,7 +21,7 @@ class ContinuousEdge:
 
         Parameters
         ----------
-        start_pixel: pixels.GreyPixel
+        start_pixel: pix.GrayPixel
             The first pixel of the edge that was found.
 
         Returns
@@ -36,7 +39,7 @@ class ContinuousEdge:
 
         Parameters
         ----------
-        input_pixel: int
+        input_pixel: pix.GrayPixel
             Pixel to be added to the pixel table.
 
         Returns
@@ -128,7 +131,7 @@ class ContinuousEdge:
 
         Parameters
         ----------
-        max_hysteresis: int:
+        max_hysteresis: float
             Threshold for strong pixel response.
 
         Returns
