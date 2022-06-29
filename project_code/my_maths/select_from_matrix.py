@@ -49,7 +49,7 @@ def get_sub_matrix(mother_matrix, x_start, y_start, size=5):
     return sub_matrix_view
 
 
-def get_vector_on_angle(matrix_with_edge, angle, kernel_radius):
+def vector_as_per_angle(matrix_with_edge, angle, kernel_radius):
     """
     Get the vector perpendicular to the edge.
 
@@ -59,7 +59,7 @@ def get_vector_on_angle(matrix_with_edge, angle, kernel_radius):
     ----------
     matrix_with_edge : np.ndarray
         The pixel matrix containing the edge and surrounding pixels.
-    angle : int
+    angle : float
         The angle perpendicular to the edge.
     kernel_radius : int
         The radius of ``matrix_with_edge``
@@ -69,6 +69,8 @@ def get_vector_on_angle(matrix_with_edge, angle, kernel_radius):
     numpy.ndarray
         array with the vector on the angle.
     """
+    if angle < -2.0:
+        return None
     if angle <= -1.5:
         return extract_column(matrix_with_edge, kernel_radius)
     if angle <= -0.5:

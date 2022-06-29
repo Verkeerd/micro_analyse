@@ -10,14 +10,14 @@ def calculate_hypotenuse(side_1, side_2):
 
     Parameters
     ----------
-    side_1 : int
+    side_1 : float
         Length of a leg of the triangle
-    side_2 : int
+    side_2 : float
         Length of the other leg of the triangle
 
     Returns
     -------
-    int
+    float
         Length of the hypotenuse.
     """
     return math.sqrt(side_1 ** 2 + side_2 ** 2)
@@ -81,7 +81,7 @@ def new_xy_circumference_circle(angle, radius):
 
     Returns
     -------
-    tuple : (int, int)
+    tuple : (float, float)
         The new x, y coordinates.
     """
-    return math.cos(radius * angle), math.sin(radius * angle)
+    return radius * math.cos(angle), radius * math.sin(angle)

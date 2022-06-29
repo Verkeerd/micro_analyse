@@ -19,7 +19,7 @@ def gaussian_formula(x, sigma):
     Returns
     -------
     float
-        y
+        The value of y at ``x`` for the gaussian formula of ``sigma``
     """
     # source: https://mathworld.wolfram.com/GaussianFunction.html
     return math.exp((x**2 / (2 * sigma ** 2)) * -1) / sigma * math.sqrt(2 * math.pi)
@@ -29,12 +29,10 @@ def gaussian_kernel(size=5):
     """
     Creates a 2d Gaussian kernel.
 
-    Creates the kernel by
-
     Parameters
     ----------
     size : int
-        size of x and y. Has to be uneven.
+        Size of x and y. Has to be uneven.
 
     Returns
     -------

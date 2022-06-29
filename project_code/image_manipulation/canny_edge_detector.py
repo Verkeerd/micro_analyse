@@ -35,16 +35,17 @@ def non_maximum_suppressor(image_pixel_table, kernel_size=5):
             if current_pixel.is_off():
                 continue
 
-            pixel_and_surrounding = select.get_sub_matrix(image_values,
-                                                          row_index - kernel_radius,
-                                                          column_index - kernel_radius,
-                                                          size=kernel_size)
+            local_neighborhood = select.get_sub_matrix(image_values,
+                                                       row_index - kernel_radius,
+                                                       column_index - kernel_radius,
+                                                       size=kernel_size)
 
-            intersection_edge = select.get_vector_on_angle(pixel_and_surrounding,
+            intersection_edge = select.vector_as_per_angle(local_neighborhood,
                                                            current_pixel.orientation,
                                                            kernel_radius)
+
             # Calculates the local maximum of the intersection of the edge.
-            local_maximum_index = calculus.local_maximum_1d(intersection_edge)
+            local_maximum_index, maximum = calculus.local_maximum_1d(intersection_edge)
             # Turns off all pixels that aren't the local maximum in the edge.
             for edge_index, edge_pixel in enumerate(intersection_edge):
                 if edge_index == local_maximum_index:
@@ -52,7 +53,7 @@ def non_maximum_suppressor(image_pixel_table, kernel_size=5):
                 edge_pixel.turn_off()
 
 
-def hysteresis_thresholding(image_pixel_table, kernel_radius=5):
+def hysteresis_thresholding(image_pixel_table, kernel_radius=5, noise=2):
     """
     Turns off weak edges based on hysteresis thresholding.
 
@@ -67,6 +68,8 @@ def hysteresis_thresholding(image_pixel_table, kernel_radius=5):
     ----------
     image_pixel_table: PixelTable
         The pixel table containing the greyscale variants of pixels of an image.
+    noise: int
+        The approximate amount of noise in the image.
     kernel_radius: int
         The maximum distance between adjacent pixels with creating edges.
 
@@ -75,13 +78,15 @@ def hysteresis_thresholding(image_pixel_table, kernel_radius=5):
     None
         All pixels that don't qualify for hysteresis thresholding have been turned off.
     """
+    if noise == 0:
+        noise = 2
     print('Hysteresis')
     image_values = image_pixel_table.pixels
     height, width = image_values.shape
     brightness_scale = sorted(image_pixel_table.get_luminosity_active_pixels())
 
-    high_threshold = np.percentile(brightness_scale, 90)
-    low_threshold = high_threshold * 0.35
+    high_threshold = np.percentile(brightness_scale, 55 + noise*10)
+    low_threshold = high_threshold * (0.15 + noise * 0.2)
 
     for row_index in range(kernel_radius, height - kernel_radius):
         for column_index in range(kernel_radius, width - kernel_radius):
@@ -94,7 +99,7 @@ def hysteresis_thresholding(image_pixel_table, kernel_radius=5):
         edge.validate(high_threshold)
 
 
-def canny_detector(image_pixel_table, kernel_size=5):
+def canny_detector(image_pixel_table, kernel_size=5, noise=2):
     """
     Apply the canny edge detector.
 
@@ -108,6 +113,8 @@ def canny_detector(image_pixel_table, kernel_size=5):
     kernel_size: int
         Diameter of the non-maximum edge intersection; (Double the) length between adjacent pixels with creating edges
         with hysteresis thresholding.
+    noise: int
+        Approximate amount of noise in the image.
 
     Returns
     -------
@@ -116,4 +123,4 @@ def canny_detector(image_pixel_table, kernel_size=5):
         Pixel Table.
     """
     non_maximum_suppressor(image_pixel_table, kernel_size)
-    hysteresis_thresholding(image_pixel_table, kernel_size // 2)
+    hysteresis_thresholding(image_pixel_table, kernel_size // 2, noise=noise)

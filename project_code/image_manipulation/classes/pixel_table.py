@@ -1,7 +1,7 @@
 import numpy as np
 from project_code.image_manipulation.classes import \
     edge as edges, \
-    pixel as pixels
+    pixel as pixel
 
 
 class PixelTable:
@@ -35,9 +35,9 @@ class PixelTable:
         PixelTable
             The created Pixel Table object.
         """
-        self.pixels = np.ndarray((height, width), dtype=pixels.GreyPixel)
+        self.pixels = np.ndarray((height, width), dtype=pixel.GrayPixel)
 
-    def fill_with_grey_pixels(self, image):
+    def fill_with_image(self, image):
         """
         Fills the Pixel Table with an image.
 
@@ -56,7 +56,7 @@ class PixelTable:
         for row in range(image.height):
             for column in range(image.width):
                 pixel_rgb = image.getpixel((column, row))
-                pixel_value = pixels.GreyPixel(pixel_rgb)
+                pixel_value = pixel.GrayPixel(pixel_rgb)
                 self.pixels[row][column] = pixel_value
 
     def set_new_pixel_values(self):
@@ -71,9 +71,20 @@ class PixelTable:
             for active_pixel in row:
                 active_pixel.cache = None
 
-    def turn_off_borders(self, width):
-        """"""
-        pass
+    def turn_off_borders(self, border_width=2):
+        """
+        Turns off the borderpixels inside the pixel table.
+        """
+        total_height, total_width = self.pixels.shape
+        for row_index in range(border_width):
+            for column_index in range(total_width):
+                self.pixels[row_index, column_index].turn_off()
+                self.pixels[-row_index, column_index].turn_off()
+
+        for row_index in range(border_width, total_height - border_width):
+            for column_index in range(border_width):
+                self.pixels[row_index][column_index].turn_off()
+                self.pixels[row_index][-column_index].turn_off()
 
     def get_active_pixels(self):
         """Gets a list with all pixels inside the table that are turned on."""
@@ -88,17 +99,12 @@ class PixelTable:
         """Composes a list of pixel values of all pixels that are turned on."""
         return [active_pixel.value for active_pixel in self.get_active_pixels()]
 
-    def find_continuous_edges(self, pixel_range=1):
+    def find_continuous_edges(self):
         """
         Searches for and groups connected pixels which are on.
 
         Checks for every pixel if the pixel is on. If the pixel is on, nearby pixels are searches for other pixels that
         are turned on to add to the edge. If no pixels are found, the edge is completed.
-
-        Parameters
-        ----------
-        pixel_range: int
-            Maximum distance between edge pixels.
 
         Returns
         -------

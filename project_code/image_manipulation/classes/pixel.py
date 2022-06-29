@@ -8,7 +8,7 @@ angle_colour_dict = {-1.75:    (255,   0,      0),
                      1.75:     (100,   100,    100)}
 
 
-class GreyPixel:
+class GrayPixel:
     """
     An object representing a grey value pixel inside a digital rendition of an image.
 
@@ -17,7 +17,7 @@ class GreyPixel:
 
     def __init__(self, pixel_values):
         """
-        Creates an instance of a Grey Pixel.
+        Creates an instance of a Gray Pixel.
 
         The pixel holds a value between 0 and 255, representing a value in the reality.
         255 is white and 0 is black. The pixel can hold an orientation and a cache.
@@ -30,12 +30,14 @@ class GreyPixel:
 
         Returns
         -------
-        GreyPixel
-            The created Grey Pixel object.
+        GrayPixel
+            The created Gray Pixel object.
         """
         # Cache and orientation are created for later functionality.
         self.cache = None
         self.orientation = None
+
+        self.value = 0
 
         # If the pixel value is expressed in rbg, grey value is calculated.
         if isinstance(pixel_values, tuple):
@@ -47,11 +49,11 @@ class GreyPixel:
 
     def __add__(self, other):
         """The sum of the value attribute and other."""
-        return self.value + other
+        return self.value + other.value
 
     def __mul__(self, other):
         """The product of the value attribute and other."""
-        return self.value * other
+        return self.value * other.value
 
     def __eq__(self, other):
         """The value attribute is equal to the other."""

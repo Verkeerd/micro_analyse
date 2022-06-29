@@ -31,7 +31,7 @@ class Circle:
         self.radius = circle_radius
         self.center = (center_x, center_y)
 
-    def draw(self):
+    def circumference_indexes(self):
         """
         Computes which indexes fall on the circumference of the circle.
 
@@ -56,7 +56,7 @@ class Circle:
 
         return indexes
 
-    def draw_safe(self, max_x, max_y):
+    def circumference_indexes_fitted(self, max_x, max_y, min_x, min_y):
         """
         Computes which indexes fall on the circumference of the circle within the canvas.
 
@@ -74,20 +74,41 @@ class Circle:
         list: [(int, int)]
             Indexes of the circumference within the bounds of the canvas.
         """
-        potential_indexes = self.draw()
-        return cast_partial_circle(potential_indexes, max_x, max_y)
+        potential_indexes = self.circumference_indexes()
+        return partial_circle_circumference(potential_indexes, max_x, max_y, min_x, min_y)
 
 
-def cast_partial_circle(circle_indexes, max_x, max_y):
-    """"""
+def partial_circle_circumference(circle_indexes, max_x, max_y, min_x, min_y):
+    """
+    Casts a circle to a smaller canvas.
+
+    Cuts off all indexes that don't fit on the new index.
+
+    Parameters
+    ----------
+    circle_indexes: list [(int, int)]
+        Indexes that belong to the circumference of the circle.
+    max_x: int
+        Maximum valid x index
+    max_y: int
+        Maximum valid y index.
+    min_x: int
+        Minimum valid x index.
+    min_y: int
+        Minimum valid y index.
+
+    Returns
+    -------
+    list: [(int, int)]
+        Valid indexes that belong to the circumference of the circle.
+    """
     fitted_indexes = list()
+
     for x, y in circle_indexes:
-        if x >= max_x or x < 0:
+        if x >= max_x or x <= min_x:
             continue
-        if  y >= max_y or y < 0:
+        if y >= max_y or y <= min_y:
             continue
         fitted_indexes.append((x, y))
 
     return fitted_indexes
-
-
